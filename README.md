@@ -113,3 +113,7 @@ python3 scripts/build.py
 输出 `.toolpkg` 在指定输出目录，包含源文件、测试与本说明；不是 APK。可检查 `manifest.json`、元数据、JS 语法与 ZIP 完整性。
 
 接口核对来源：Operit 官方仓库 v1.12.2，commit `dbf71916fae9750cfdc9f9a774f5a0fee56633fb`，`examples/types/toolpkg.d.ts`、`compose-dsl.d.ts`、`files.d.ts`、JavaScript 运行时说明与 `ToolPkgApiVersion.kt`。
+
+Credits
+Created by Reiko.
+Concept, architecture & design developed together with Gabe (ChatGPT).
