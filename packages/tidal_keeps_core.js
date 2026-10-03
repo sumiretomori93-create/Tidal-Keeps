@@ -544,6 +544,14 @@
       ]
     },
     {
+      "name": "deliver_daily_digest",
+      "description": {
+        "zh": "工作流专用：生成今日晨间交接并发送到潮汐留存已绑定的对话；同一天成功投递后不会重复发送。",
+        "en": "Workflow helper: generate today's handoff and deliver it to the chat bound in Tidal Keeps; successful delivery is deduplicated per day."
+      },
+      "parameters": []
+    },
+    {
       "name": "generate_daily_digest",
       "description": {
         "zh": "生成并缓存日期唯一的晨间交接，返回 text、digest、alreadyGenerated。不会发送消息；工作流需自行注入与防重复投递。",
@@ -577,4 +585,25 @@ exports.get_weight_records=p=>invoke('get_weight_records',p);
 exports.record_cycle=p=>invoke('record_cycle',p);
 exports.get_cycle_status=p=>invoke('get_cycle_status',p);
 exports.manage_record=async function(p={}){const {action,...rest}=p;if(!['update_note','delete_note','delete_weight','delete_cycle'].includes(action)){const r={success:false,message:'不支持此修改操作。'};if(typeof complete==='function')complete(r);return r;}return invoke(action,rest);};
+exports.deliver_daily_digest=async function(p={}){
+ let generated;
+ try{
+  const state=await ToolPkg.ipc.call('tidal_keeps.request',{action:'get_state',params:{}},{targetRuntime:'main'});
+  if(!state?.success)throw Error(state?.message||'无法读取潮汐留存状态。');
+  const binding=state.state?.chatBinding||{};
+  if(!binding.chatId)throw Error('还没有绑定投递对话。请先从目标对话打开潮汐留存，在设置中绑定当前对话。');
+  const today=state.today;
+  const delivered=await ToolPkg.ipc.call('tidal_keeps.request',{action:'get_digest_delivery',params:{date:today}},{targetRuntime:'main'});
+  if(delivered?.delivery){const r={success:true,alreadyDelivered:true,date:today,delivery:delivered.delivery};if(typeof complete==='function')complete(r);return r;}
+  generated=await ToolPkg.ipc.call('tidal_keeps.request',{action:'generate_daily_digest',params:{date:today,author:'assistant',createdBy:'assistant'}},{targetRuntime:'main'});
+  if(!generated?.success||!generated.text)throw Error(generated?.message||'晨间交接生成失败。');
+  if(typeof Tools==='undefined'||!Tools.Chat||typeof Tools.Chat.sendMessage!=='function')throw Error('当前 Operit 运行时不支持聊天投递。');
+  const prompt='以下是潮汐留存整理的历史记录和近期安排，用于理解生活背景。按记录日期区分昨天、今天与未来；经期估算不是事实。自然回应其中相关内容，不逐项报表，也不评价体重。\n\n'+generated.text;
+  const sent=await Tools.Chat.sendMessage(prompt,binding.chatId,binding.characterCardId||undefined,undefined,{runtime:'main',persist_turn:true,notify_reply:true,hide_user_message:true,timeout_ms:120000});
+  if(sent&&sent.success===false)throw Error(sent.message||sent.error||'聊天投递失败。');
+  const marked=await ToolPkg.ipc.call('tidal_keeps.request',{action:'mark_digest_delivered',params:{date:today,chatId:binding.chatId}},{targetRuntime:'main'});
+  if(!marked?.success)throw Error(marked?.message||'消息已发送，但投递标记保存失败。');
+  const r={success:true,alreadyDelivered:false,date:today,chatId:binding.chatId,text:generated.text,alreadyGenerated:generated.alreadyGenerated===true};if(typeof complete==='function')complete(r);return r;
+ }catch(e){const r={success:false,message:e.message||String(e),retryable:true,text:generated?.text||''};if(typeof complete==='function')complete(r);return r;}
+};
 exports.generate_daily_digest=p=>invoke('generate_daily_digest',p);

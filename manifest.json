@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "toolpkg_id": "com.reiko.tidal_keeps",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "author": [
     "Reiko",
     "Gabe"
@@ -33,5 +33,26 @@
       }
     }
   ],
-  "api_version": "1.0.1"
+  "api_version": "1.0.1",
+  "resources": [
+    {
+      "key": "morning_dive_workflow_template",
+      "path": "resources/workflows/morning_dive_workflow.json",
+      "mime": "application/json"
+    }
+  ],
+  "workflow_templates": [
+    {
+      "id": "morning_dive_workflow",
+      "display_name": {
+        "zh": "晨潜 · 每日交接",
+        "en": "Morning Dive · Daily Handoff"
+      },
+      "description": {
+        "zh": "每天 08:00 触发潮汐留存，将当日晨间交接送入已绑定对话。",
+        "en": "Runs at 08:00 daily and delivers the Tidal Keeps morning handoff to the bound chat."
+      },
+      "resource_key": "morning_dive_workflow_template"
+    }
+  ]
 }

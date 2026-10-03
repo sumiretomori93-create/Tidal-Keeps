@@ -1,4 +1,4 @@
-# 潮汐留存 · Tidal Keeps 0.2.0
+# 潮汐留存 · Tidal Keeps 0.2.2
 
 把日常沉入海里，再从昨日打捞回来。
 
@@ -117,3 +117,9 @@ python3 scripts/build.py
 Credits
 Created by Reiko.
 Concept, architecture & design developed together with Gabe (ChatGPT).
+
+## 0.2.2 经期连续记录
+
+开始后在海面或日历确认“仍在经期”或“今天已结束”。确认日期自动显示经期天数，漏确认保留待确认状态；今天已结束表示当天不再处于经期。旧版填写的结束日期仍按最后一个经期日解释。晨间交接包含当天经期天数与确认状态；未投递的当天缓存在经期修改后重新生成，已投递快照保留。
+
+下载：[Tidal-Keeps-0.2.2.toolpkg](releases/Tidal-Keeps-0.2.2.toolpkg)。此次新增逻辑与页面脚本语法检查通过，尚未真机验证。

@@ -1,0 +1,55 @@
+{
+  "id": "tidal-keeps-morning-dive-seed",
+  "name": "潮汐留存 · 晨潜",
+  "description": "每天 08:00 自动生成潮汐留存晨间交接，并投递到插件中已绑定的对话。",
+  "nodes": [
+    {
+      "__type": "com.ai.assistance.operit.data.model.TriggerNode",
+      "id": "trigger_tidal_morning_dive",
+      "type": "trigger",
+      "name": "每天 08:00",
+      "description": "使用 Operit 定时工作流；时间按设备本地时区。",
+      "position": {
+        "x": 120.0,
+        "y": 120.0
+      },
+      "triggerType": "schedule",
+      "triggerConfig": {
+        "schedule_type": "cron",
+        "cron_expression": "0 8 * * *",
+        "repeat": "true",
+        "enabled": "true"
+      }
+    },
+    {
+      "__type": "com.ai.assistance.operit.data.model.ExecuteNode",
+      "id": "execute_tidal_morning_dive",
+      "type": "execute",
+      "name": "小水母晨潜",
+      "description": "生成今日交接并投递到潮汐留存绑定的对话；成功后当天自动防重复。",
+      "position": {
+        "x": 720.0,
+        "y": 120.0
+      },
+      "actionType": "tidal_keeps_core:deliver_daily_digest",
+      "actionConfig": {},
+      "jsCode": null
+    }
+  ],
+  "connections": [
+    {
+      "id": "conn_tidal_trigger_to_delivery",
+      "sourceNodeId": "trigger_tidal_morning_dive",
+      "targetNodeId": "execute_tidal_morning_dive",
+      "condition": "on_success"
+    }
+  ],
+  "createdAt": 0,
+  "updatedAt": 0,
+  "enabled": true,
+  "lastExecutionTime": null,
+  "lastExecutionStatus": null,
+  "totalExecutions": 0,
+  "successfulExecutions": 0,
+  "failedExecutions": 0
+}
